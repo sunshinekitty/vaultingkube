@@ -1,0 +1,9 @@
+chart/
+deployment/
+resource/
+vendor/
+.git/
+.draftignore
+draft.toml
+vaultingkube
+README.md

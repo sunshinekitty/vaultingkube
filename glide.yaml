@@ -1,0 +1,10 @@
+package: github.com/sunshinekitty/vaultingkube
+import:
+- package: github.com/spf13/viper
+  version: 16990631d4aa7e38f73dbbbf37fa13e67c648531
+- package: k8s.io/client-go
+  version: ^5.0.1
+- package: github.com/Sirupsen/logrus
+  version: ba1b36c82c5e05c4f912a88eab0dcd91a171688f
+- package: github.com/hashicorp/vault
+  version: ^0.9.0
