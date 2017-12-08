@@ -16,9 +16,21 @@ Vaultingkube does not have any logic to determine if Vault has changed, and so i
 
 By default Vaultingkube will delete ConfigMaps and Secrets that exist in Kubernetes and **not** Vault that have the annotation of `vaultingkube.io/managed: "true"`.  To turn this off set the environment variable `VK_DELETE_OLD` to `"false"`.
 
+## Demo
+
+<img src="resource/demo.gif" width="600px" />
+
 ## Deployment
 
-See [deployment/README.md](deployment/README.md).
+On lines 25-34 in [deployment/003-deployment.yaml](deployment/003-deployment.yaml) are configurable environment variables that will need to be set on a per deployment basis.  After these are updated for your environment run `kubectl apply -f deployment/`.  See [environment variables](#environment-variables).
+
+**If you are not using RBAC** then just run 
+
+```
+kubectl apply -f deployment/001-common.yaml
+kubectl apply -f deployment/003-deployment.yaml
+```
+
 
 ## Client Versions
 

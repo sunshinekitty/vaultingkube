@@ -1,0 +1,53 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: vaultingkube
+  name: vaultingkube
+  namespace: vaultingkube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vaultingkube
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: vaultingkube
+    spec:
+      containers:
+      - env:
+        - name: VAULT_ADDR
+          value: http://vault:8200
+        - name: VAULT_TOKEN
+          value: replace-me
+        - name: VK_DELETE_OLD
+          value: "true"
+        - name: VK_SYNC_PERIOD
+          value: "300"
+        - name: VK_VAULT_ROOT_MOUNT_PATH
+          value: vaultingkube/cluster-name
+        image: sunshinekitty/vaultingkube:v0.1.0
+        imagePullPolicy: Always
+        name: vaultingkube
+        resources:
+          limits:
+            cpu: 100m
+            memory: 64Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      serviceAccountName: vaultingkube
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+---
