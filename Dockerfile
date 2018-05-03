@@ -11,7 +11,10 @@ RUN apk update && \
     glide i && \
     go build -ldflags="-s -w" .
 
-FROM alpine:latest
+FROM alpine:3.7
+
+RUN apk --no-cache add ca-certificates && \
+    update-ca-certificates
 
 COPY --from=BUILD /go/src/github.com/sunshinekitty/vaultingkube/vaultingkube /usr/bin
 
