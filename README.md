@@ -1,6 +1,7 @@
 # vaultingkube
 
 ![logo](resource/vaultingkube.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsunshinekitty%2Fvaultingkube.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsunshinekitty%2Fvaultingkube?ref=badge_shield)
 
 Take config maps and secrets stored inside Hashicorp Vault and sync them to your Kubernetes cluster.
 
@@ -50,3 +51,6 @@ You should be able to infer the supported versions of Kubernetes and Vault that 
 ## License
 
 Apache 2
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsunshinekitty%2Fvaultingkube.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsunshinekitty%2Fvaultingkube?ref=badge_large)
