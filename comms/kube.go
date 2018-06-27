@@ -167,52 +167,56 @@ func (k *VKKube) DeleteOld(mounts *VKVaultMounts) error {
 	}
 
 	for _, cm := range cms.Items {
-		if cm.Annotations["vaultingkube.io/managed"] == "true" {
-			found := false
-			for _, mount := range *mounts {
-				if mount.Secrets != nil {
-					for _, secret := range *mount.Secrets {
-						if mount.Namespace == cm.Namespace &&
-							secret.Name == cm.Name &&
-							mount.SecretTypes == "configmaps" {
-							// We found a cm
-							found = true
-						}
-					}
+		if cm.Annotations["vaultingkube.io/managed"] != "true" {
+			continue
+		}
+		found := false
+		for _, mount := range *mounts {
+			if mount.Secrets == nil {
+				continue
+			}
+			for _, secret := range *mount.Secrets {
+				if mount.Namespace == cm.Namespace &&
+					secret.Name == cm.Name &&
+					mount.SecretTypes == "configmaps" {
+					// We found a cm
+					found = true
 				}
 			}
-			if !found {
-				err := k.DeleteCM(cm.Name, cm.Namespace)
-				if err != nil {
-					return err
-				}
-				k.Logger.Infof("Deleted old ConfigMap %s/%s", cm.Namespace, cm.Name)
+		}
+		if !found {
+			err := k.DeleteCM(cm.Name, cm.Namespace)
+			if err != nil {
+				return err
 			}
+			k.Logger.Infof("Deleted old ConfigMap %s/%s", cm.Namespace, cm.Name)
 		}
 	}
 
 	for _, secret := range secrets.Items {
-		if secret.Annotations["vaultingkube.io/managed"] == "true" {
-			found := false
-			for _, mount := range *mounts {
-				if mount.Secrets != nil {
-					for _, mSecret := range *mount.Secrets {
-						if mount.Namespace == secret.Namespace &&
-							secret.Name == mSecret.Name &&
-							mount.SecretTypes == "secrets" {
-							// We found a secret
-							found = true
-						}
-					}
+		if secret.Annotations["vaultingkube.io/managed"] != "true" {
+			continue
+		}
+		found := false
+		for _, mount := range *mounts {
+			if mount.Secrets == nil {
+				continue
+			}
+			for _, mSecret := range *mount.Secrets {
+				if mount.Namespace == secret.Namespace &&
+					secret.Name == mSecret.Name &&
+					mount.SecretTypes == "secrets" {
+					// We found a secret
+					found = true
 				}
 			}
-			if !found {
-				err := k.DeleteSecret(secret.Name, secret.Namespace)
-				if err != nil {
-					return err
-				}
-				k.Logger.Infof("Deleted old Secret %s/%s", secret.Namespace, secret.Name)
+		}
+		if !found {
+			err := k.DeleteSecret(secret.Name, secret.Namespace)
+			if err != nil {
+				return err
 			}
+			k.Logger.Infof("Deleted old Secret %s/%s", secret.Namespace, secret.Name)
 		}
 	}
 	return nil

@@ -32,7 +32,7 @@ spec:
           value: "300"
         - name: VK_VAULT_ROOT_MOUNT_PATH
           value: vaultingkube/cluster-name
-        image: sunshinekitty/vaultingkube:v0.1.0
+        image: sunshinekitty/vaultingkube:v0.2.0
         imagePullPolicy: Always
         name: vaultingkube
         resources:

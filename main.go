@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -27,15 +26,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Started with sync period every %s seconds\n", syncPeriod)
+	logger := logrus.New()
+	logger.Infof("Started with sync period every %s seconds", syncPeriod)
 	for range time.Tick(time.Second * time.Duration(syncPeriodInt)) {
-		run()
+		run(logger)
 	}
 }
 
-func run() {
-	logger := logrus.New()
-
+func run(logger *logrus.Logger) {
 	vkVault, err := comms.NewVKVaultClient()
 	if err != nil {
 		logger.Fatal(err)
@@ -51,30 +49,31 @@ func run() {
 		logger.Fatal(err)
 	} else {
 		for _, mount := range *mounts {
-			if mount.Secrets != nil {
-				for _, secret := range *mount.Secrets {
-					if vkKube.IsManaged(secret.Name, mount.SecretTypes, mount.Namespace) {
-						if mount.SecretTypes == "secrets" {
-							err := vkKube.SetSecret(secret.Name, mount.Namespace, secret.Pairs)
-							if err != nil {
-								logger.Error(err)
-							} else {
-								logger.Infof("Set Secret for %s/%s", mount.Namespace, secret.Name)
-							}
-						} else if mount.SecretTypes == "configmaps" {
-							err := vkKube.SetCM(secret.Name, mount.Namespace, secret.Pairs)
-							if err != nil {
-								logger.Error(err)
-							} else {
-								logger.Infof("Set ConfigMap for %s/%s", mount.Namespace, secret.Name)
-							}
+			if mount.Secrets == nil {
+				continue
+			}
+			for _, secret := range *mount.Secrets {
+				if vkKube.IsManaged(secret.Name, mount.SecretTypes, mount.Namespace) {
+					if mount.SecretTypes == "secrets" {
+						err := vkKube.SetSecret(secret.Name, mount.Namespace, secret.Pairs)
+						if err != nil {
+							logger.Error(err)
+						} else {
+							logger.Infof("Set Secret for %s/%s", mount.Namespace, secret.Name)
 						}
-					} else {
-						if mount.SecretTypes == "secrets" {
-							logger.Infof("Secret %s in namespace %s is not managed by VaultingKube, ignoring", secret.Name, mount.Namespace)
-						} else if mount.SecretTypes == "configmaps" {
-							logger.Infof("ConfigMap %s in namespace %s is not managed by VaultingKube, ignoring", secret.Name, mount.Namespace)
+					} else if mount.SecretTypes == "configmaps" {
+						err := vkKube.SetCM(secret.Name, mount.Namespace, secret.Pairs)
+						if err != nil {
+							logger.Error(err)
+						} else {
+							logger.Infof("Set ConfigMap for %s/%s", mount.Namespace, secret.Name)
 						}
+					}
+				} else {
+					if mount.SecretTypes == "secrets" {
+						logger.Infof("Secret %s in namespace %s is not managed by VaultingKube, ignoring", secret.Name, mount.Namespace)
+					} else if mount.SecretTypes == "configmaps" {
+						logger.Infof("ConfigMap %s in namespace %s is not managed by VaultingKube, ignoring", secret.Name, mount.Namespace)
 					}
 				}
 			}

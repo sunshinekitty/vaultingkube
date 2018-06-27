@@ -61,29 +61,30 @@ func (v *VKVault) GetMounts(mountPath string) (*VKVaultMounts, error) {
 	}
 
 	for mount, pointer := range mountMap {
-		if strings.HasPrefix(mount, mountPath) && pointer.Type == "kv" {
-			subMount := strings.Split(mount, mountPath)[1]
-			subMount = strings.Trim(subMount, "/")
-			subMountSlice := strings.Split(subMount, "/")
-			if len(subMountSlice) != 2 {
-				ErrInvalidVaultMount = fmt.Errorf("Mount %s is invalid", mount)
-				return nil, ErrInvalidVaultMount
-			}
-			namespace := subMountSlice[0]
-			secretTypes := subMountSlice[1]
-			if secretTypes != "configmaps" && secretTypes != "secrets" {
-				ErrInvalidSecretType = fmt.Errorf("Secret %s is invalid", secretTypes)
-				return nil, ErrInvalidSecretType
-			}
-			vaultMount := &VKVaultMount{
-				MountPath:    mount,
-				MountPointer: pointer,
-				Namespace:    namespace,
-				SecretTypes:  secretTypes,
-			}
-			vaultMount.populateSecrets(v)
-			*mounts = append(*mounts, *vaultMount)
+		if !strings.HasPrefix(mount, mountPath) || pointer.Type != "kv" {
+			continue
 		}
+		subMount := strings.Split(mount, mountPath)[1]
+		subMount = strings.Trim(subMount, "/")
+		subMountSlice := strings.Split(subMount, "/")
+		if len(subMountSlice) != 2 {
+			ErrInvalidVaultMount = fmt.Errorf("Mount %s is invalid", mount)
+			return nil, ErrInvalidVaultMount
+		}
+		namespace := subMountSlice[0]
+		secretTypes := subMountSlice[1]
+		if secretTypes != "configmaps" && secretTypes != "secrets" {
+			ErrInvalidSecretType = fmt.Errorf("Secret %s is invalid", secretTypes)
+			return nil, ErrInvalidSecretType
+		}
+		vaultMount := &VKVaultMount{
+			MountPath:    mount,
+			MountPointer: pointer,
+			Namespace:    namespace,
+			SecretTypes:  secretTypes,
+		}
+		vaultMount.populateSecrets(v)
+		*mounts = append(*mounts, *vaultMount)
 	}
 
 	return mounts, nil
